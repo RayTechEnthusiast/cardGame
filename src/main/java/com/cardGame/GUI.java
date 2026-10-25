@@ -17,7 +17,6 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
     private Solitaire game;
     JPanel dealerPane;
     JPanel playerPane;
-    JLayeredPane layeredCards;
 
     public static String IMG_PATH = System.getProperty("user.dir") + "/src/main/java/com/cardGame/resources/";
 
@@ -46,7 +45,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         boardArea.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, Color.BLUE));
         this.add(boardArea);
 
-        // Pane for dealer cards
+        // Pane for dealer cards (Holds the deck and revealed cards)
         dealerPane = new JPanel();
         dealerPane.setOpaque(false);
         dealerPane.setLayout(null);
@@ -54,7 +53,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         dealerPane.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, Color.RED));
         boardArea.add(dealerPane);
 
-        // Pane for player cards
+        // Pane for player cards (Holds playable tableau piles and discard location)
         playerPane = new JPanel();
         playerPane.setOpaque(false);
         playerPane.setLayout(null);
@@ -62,7 +61,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         playerPane.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, Color.GREEN));
         boardArea.add(playerPane);
 
-        // Pane for game controls
+        // Pane for game controls (Score, reset button, etc.)
         JPanel controlPane = new JPanel();
         controlPane.setOpaque(false);
         controlPane.setLayout(null);
@@ -70,29 +69,38 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         controlPane.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, Color.ORANGE));
         boardArea.add(controlPane);
 
-        // Layered pane inside player pane for stacking cards
-        layeredCards = new JLayeredPane();
-        layeredCards.setOpaque(false);
-        layeredCards.setLayout(null);
-        layeredCards.setBounds(10, 10, 400, 180);
-        playerPane.add(layeredCards);
-
-        // STEP 2: Create a test stack and draw it
-        Stack<Card> testDeck = new Stack<>();
-        testDeck.push(new Card(2, Card.Suit.Spades));
-        testDeck.push(new Card(3, Card.Suit.Spades));
-        testDeck.push(new Card(4, Card.Suit.Spades));
+        // STEP 2: Create test stacks and draw them next to each other
         
-        // Draw the stack
-        this.drawPile(testDeck);
+        // First pile
+        Stack<Card> deck1 = new Stack<>();
+        deck1.push(new Card(2, Card.Suit.Spades));
+        deck1.push(new Card(3, Card.Suit.Spades));
+        deck1.push(new Card(4, Card.Suit.Spades));
+        
+        JLayeredPane pile1 = drawPile(deck1);
+        pile1.setBounds(10, 10, 180, 150);
+        playerPane.add(pile1);
+
+        // Second pile (Placed next to the first one)
+        Stack<Card> deck2 = new Stack<>();
+        deck2.push(new Card(5, Card.Suit.Hearts));
+        deck2.push(new Card(6, Card.Suit.Hearts));
+        
+        JLayeredPane pile2 = drawPile(deck2);
+        pile2.setBounds(210, 10, 180, 150);
+        playerPane.add(pile2);
 
         this.setVisible(true);
     }
    
     /**
-     * Draws cards in a pile layered on top of each other
+     * Draws cards in a pile layered on top of each other.
+     * Returns a new JLayeredPane so multiple rows can be created.
      */
     public JLayeredPane drawPile(Stack<Card> stackIn) {
+        JLayeredPane pile = new JLayeredPane();
+        pile.setLayout(null);
+        
         Object[] cardsArray = stackIn.toArray(); 
         
         // Loop through array and layer cards
@@ -100,10 +108,10 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
             Card c = (Card) cardsArray[k];
             // Stagger each card horizontally by 22 pixels
             c.setBounds(k * 22, 0, 100, 145);
-            layeredCards.add(c, Integer.valueOf(k));
+            pile.add(c, Integer.valueOf(k));
         }
         
-        return layeredCards;
+        return pile;
     }
 
     // --- Empty Event Listeners ---
