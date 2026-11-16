@@ -51,17 +51,21 @@ public class Solitaire {
         bet = pValue = dValue = 0;
         betted = bust = noMoreHits = nextRoundAvailable = false;
         result = playerMenchMessage = dealerMenchMessage = "";
-        playerDeck.clear();
-        dealerDeck.clear();
-        generateCards();
-        // Count normal cards before Mench on the first deal.
-        Card firstPlayer = deck.pop();
-        Card firstDealer = deck.pop();
-        Card secondPlayer = deck.pop();
-        Card secondDealer = deck.pop();
-        setupStartingHand(playerDeck, firstPlayer, secondPlayer, true);
-        setupStartingHand(dealerDeck, firstDealer, secondDealer, false);
-        bust = pValue > 21;
+        // Redraw if the player's first two cards already bust.
+        // Nobody should lose before they can even place a bet.
+        do {
+            playerDeck.clear();
+            dealerDeck.clear();
+            playerMenchMessage = dealerMenchMessage = "";
+            generateCards();
+            Card firstPlayer = deck.pop();
+            Card firstDealer = deck.pop();
+            Card secondPlayer = deck.pop();
+            Card secondDealer = deck.pop();
+            setupStartingHand(playerDeck, firstPlayer, secondPlayer, true);
+            setupStartingHand(dealerDeck, firstDealer, secondDealer, false);
+        } while (pValue > 21);
+        bust = false;
     }
 
     /** Pre: two cards dealt. Post: totals the starting hand. */
