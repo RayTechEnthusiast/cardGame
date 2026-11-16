@@ -46,7 +46,7 @@ public class Card extends JPanel {
         setMinimumSize(new Dimension(100, 145));
         setMaximumSize(new Dimension(100, 145));
         setOpaque(false);
-        try { backImage = ImageIO.read(new File(GUI.IMG_PATH + "back.png")); }
+        try { backImage = ImageIO.read(new File(GUI.IMG_PATH + "mench_back.png")); }
         catch (Exception ignored) { /* Draw a fallback back if missing. */ }
     }
 
@@ -95,21 +95,29 @@ public class Card extends JPanel {
         } else if (!isReversed && !mench && image != null) {
             g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
         } else {
-            g.setColor(isReversed ? new Color(40, 43, 102) : mench ? new Color(38, 23, 66) : Color.WHITE);
+            // Custom Mench art, including the card's current signed adjustment.
+            g.setColor(isReversed ? new Color(13, 38, 65) : mench ? new Color(17, 28, 58) : Color.WHITE);
             g.fillRoundRect(1, 1, getWidth() - 3, getHeight() - 3, 12, 12);
-            g.setColor(mench || isReversed ? new Color(240, 198, 78) : Color.DARK_GRAY);
+            g.setColor(mench || isReversed ? new Color(107, 223, 218) : Color.DARK_GRAY);
             g.setStroke(new BasicStroke(2));
-            g.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, 12, 12);
+            g.drawRoundRect(2, 2, getWidth() - 5, getHeight() - 5, 12, 12);
             if (isReversed) {
-                g.setFont(new Font("Serif", Font.BOLD, 52));
-                g.drawString("?", 36, 93);
+                g.setFont(new Font("SansSerif", Font.BOLD, 46));
+                g.drawString("M", 30, 85);
             } else if (mench) {
-                g.setFont(new Font("Serif", Font.BOLD, 48));
-                g.drawString("M", 26, 60);
-                g.setFont(new Font("SansSerif", Font.BOLD, 14));
-                g.drawString("MENCH", 20, 88);
-                g.setFont(new Font("SansSerif", Font.BOLD, 23));
-                g.drawString((menchValue > 0 ? "+" : "") + menchValue, 24, 119);
+                g.setColor(new Color(235, 199, 127));
+                g.drawLine(50, 8, 89, 65);
+                g.drawLine(89, 65, 50, 122);
+                g.drawLine(50, 122, 11, 65);
+                g.drawLine(11, 65, 50, 8);
+                g.setFont(new Font("SansSerif", Font.BOLD, 40));
+                g.drawString("M", 32, 58);
+                g.setFont(new Font("SansSerif", Font.BOLD, 12));
+                g.drawString("MENCH", 27, 78);
+                g.setColor(new Color(107, 223, 218));
+                g.setFont(new Font("SansSerif", Font.BOLD, 21));
+                String effect = (menchValue > 0 ? "+" : "") + menchValue;
+                g.drawString(effect, 33, 110);
             } else {
                 g.setColor(suit.isRed ? new Color(188, 34, 46) : Color.BLACK);
                 String symbol = suit == Suit.Hearts ? "\u2665" : suit == Suit.Diamonds ? "\u2666"
