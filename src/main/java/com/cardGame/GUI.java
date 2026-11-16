@@ -1,13 +1,12 @@
 package com.cardGame;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 import java.util.Stack;
+import java.awt.image.BufferedImage;
 
-/** Displays Black Mench and handles input. Solitaire keeps all the game rules. */
+/** Makes the window. The actual rules are in Solitaire.java. */
 public class GUI extends JFrame implements ActionListener, MouseListener, MouseMotionListener {
     private final Solitaire game;
     JPanel dealerPane;
@@ -22,42 +21,42 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
     private JButton bet5, bet15, bet30, betAll, hitButton, standButton, nextButton, howToButton;
     private boolean endScreenShown;
 
-    private static final Color CYAN = new Color(107, 223, 218);
-    private static final Color GOLD = new Color(235, 199, 127);
-    private static final Color NAVY = new Color(11, 27, 49);
+    private static final Color CYAN = new Color(118, 217, 209);
+    private static final Color GOLD = new Color(255, 214, 107);
+    private static final Color NAVY = new Color(30, 58, 78);
     public static String IMG_PATH = System.getProperty("user.dir") + "/src/main/java/com/cardGame/resources/";
 
-    /** Pre: an initialized Solitaire game. Post: a playable, styled game window opens. */
+    /** Pre: game exists. Post: shows the game window. */
     public GUI(Solitaire game) {
         this.game = game;
-        setTitle("Black Mench | Midnight Edition");
+        setTitle("Black Mench");
         setSize(1024, 735);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         setLocationRelativeTo(null);
 
-        // Keep the starter project's image background and null-layout approach.
-        Container background;
-        try {
-            Image picture = ImageIO.read(new File(IMG_PATH + "midnight_background.jpg"));
-            background = new ImagePanel(picture);
-        } catch (Exception ignored) {
-            JPanel fallback = new JPanel();
-            fallback.setBackground(NAVY);
-            background = fallback;
-        }
-        background.setLayout(null);
+        // A basic blue background with some little doodles.
+        JPanel background = new JPanel(null);
+        background.setBackground(NAVY);
         setContentPane(background);
 
         JPanel boardArea = new JPanel(null) {
             @Override protected void paintComponent(Graphics graphics) {
                 super.paintComponent(graphics);
                 Graphics2D g = (Graphics2D) graphics.create();
-                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g.setColor(new Color(5, 20, 39, 180));
-                g.fillRoundRect(725, 110, 268, 460, 24, 24);
-                g.setColor(new Color(107, 223, 218, 90));
-                g.drawRoundRect(725, 110, 268, 460, 24, 24);
+                g.setColor(NAVY);
+                g.fillRect(0, 0, getWidth(), getHeight());
+                // The side area is just a plain box, like a school project poster.
+                g.setColor(new Color(22, 44, 64));
+                g.fillRect(726, 112, 266, 465);
+                g.setColor(GOLD);
+                g.drawRect(726, 112, 266, 465);
+                g.setFont(new Font("SansSerif", Font.BOLD, 22));
+                g.drawString("*", 68, 69);
+                g.drawString("*", 938, 100);
+                g.drawString("*", 59, 657);
+                g.setFont(new Font("SansSerif", Font.PLAIN, 12));
+                g.drawString("DON'T BUST!", 45, 94);
                 g.dispose();
             }
         };
@@ -65,19 +64,19 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         boardArea.setBounds(0, 0, 1024, 735);
         background.add(boardArea);
 
-        JLabel title = label("BLACK MENCH", 36);
+        JLabel title = label("BLACK MENCH!", 36);
         title.setFont(new Font("SansSerif", Font.BOLD, 36));
         title.setForeground(GOLD);
         title.setHorizontalAlignment(SwingConstants.CENTER);
         place(boardArea, title, 250, 16, 524, 58);
 
-        JLabel subtitle = label("MIDNIGHT EDITION  /  GET CLOSE TO 21", 13);
+        JLabel subtitle = label("A NORMAL CARD GAME... EXCEPT FOR THE MENCH", 13);
         subtitle.setForeground(CYAN);
         subtitle.setHorizontalAlignment(SwingConstants.CENTER);
         place(boardArea, subtitle, 273, 75, 480, 22);
 
-        howToButton = button("?  HOW TO PLAY");
-        howToButton.setBackground(new Color(30, 72, 90));
+        howToButton = button("?  RULES");
+        howToButton.setBackground(new Color(65, 91, 110));
         howToButton.setForeground(Color.WHITE);
         howToButton.setBorder(BorderFactory.createLineBorder(CYAN, 1));
         place(boardArea, howToButton, 842, 39, 146, 39);
@@ -90,7 +89,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         place(boardArea, dealerScore, 285, 117, 160, 29);
         dealerPane = new JPanel(null);
         dealerPane.setOpaque(false);
-        dealerPane.setBorder(BorderFactory.createLineBorder(new Color(107, 223, 218, 165), 1));
+        dealerPane.setBorder(BorderFactory.createLineBorder(new Color(118, 217, 209), 1));
         place(boardArea, dealerPane, 39, 151, 673, 169);
 
         JLabel playerTitle = label("YOUR HAND", 18);
@@ -100,7 +99,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         place(boardArea, playerScore, 285, 337, 160, 29);
         playerPane = new JPanel(null);
         playerPane.setOpaque(false);
-        playerPane.setBorder(BorderFactory.createLineBorder(new Color(107, 223, 218, 165), 1));
+        playerPane.setBorder(BorderFactory.createLineBorder(new Color(118, 217, 209), 1));
         place(boardArea, playerPane, 39, 372, 673, 169);
 
         tokenCount = label("", 21);
@@ -109,19 +108,13 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         place(boardArea, tokenCount, 746, 122, 240, 33);
         place(boardArea, currentBet, 746, 157, 240, 27);
 
-        // This deck graphic is different from the starter project's back.png.
-        deckImage = new JLabel("DECK", SwingConstants.CENTER);
-        deckImage.setForeground(CYAN);
+        // The back is drawn in Card.java so the deck and hidden cards match.
+        deckImage = new JLabel(new ImageIcon(Card.createBackImage()));
         deckImage.setBorder(BorderFactory.createLineBorder(CYAN, 1));
-        try {
-            Image cardBack = ImageIO.read(new File(IMG_PATH + "mench_back.png"));
-            deckImage.setIcon(new ImageIcon(cardBack.getScaledInstance(100, 145, Image.SCALE_SMOOTH)));
-            deckImage.setText("");
-        } catch (Exception ignored) { /* Text remains usable if the picture is absent. */ }
         deckImage.addMouseListener(this);
         deckImage.setToolTipText("Click the deck to hit after placing a bet");
         place(boardArea, deckImage, 808, 189, 100, 145);
-        JLabel deckHint = label("CLICK DECK TO HIT", 11);
+        JLabel deckHint = label("CLICK DECK = HIT", 11);
         deckHint.setForeground(CYAN);
         deckHint.setHorizontalAlignment(SwingConstants.CENTER);
         place(boardArea, deckHint, 774, 340, 168, 17);
@@ -154,8 +147,8 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         menchLabel.setForeground(GOLD);
         menchLabel.setHorizontalAlignment(SwingConstants.CENTER);
         place(boardArea, menchLabel, 30, 614, 960, 26);
-        JLabel footer = label("ACE 1  /  JACK 11  /  QUEEN 12  /  KING 13      -      SPECIAL CARD: THE MENCH", 12);
-        footer.setForeground(new Color(205, 219, 235));
+        JLabel footer = label("A=1  J=11  Q=12  K=13  |  WATCH OUT FOR THE MENCH!", 12);
+        footer.setForeground(new Color(230, 232, 228));
         footer.setHorizontalAlignment(SwingConstants.CENTER);
         place(boardArea, footer, 50, 656, 920, 22);
 
@@ -163,7 +156,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         setVisible(true);
     }
 
-    /** Pre: text and font size. Post: creates a readable text label. */
+    /** Pre: text and size. Post: makes a label. */
     private static JLabel label(String text, int size) {
         JLabel label = new JLabel(text);
         label.setFont(new Font("SansSerif", Font.BOLD, size));
@@ -171,7 +164,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         return label;
     }
 
-    /** Pre: a button label. Post: creates a midnight-colored game button. */
+    /** Pre: button text. Post: makes a button. */
     private JButton button(String text) {
         JButton button = new JButton(text);
         button.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -183,16 +176,16 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         return button;
     }
 
-    /** Pre: component and coordinates. Post: places it using the starter's null layout. */
+    /** Pre: component and location. Post: puts it on the panel. */
     private static void place(JPanel panel, JComponent component, int x, int y, int width, int height) {
         component.setBounds(x, y, width, height);
         panel.add(component);
     }
 
-    /** Pre: the player requests help. Post: displays bullet-point rules in a dialog. */
+    /** Pre: rules button clicked. Post: shows how to play. */
     private void showInstructions() {
         String instructions = "<html><body style='width:440px;font-family:sans-serif'>"
-                + "<h2>HOW TO PLAY BLACK MENCH</h2>"
+                + "<h2>How to Play Black Mench</h2>"
                 + "<ul>"
                 + "<li>Place a bet of 5, 15, 30, or all your available tokens.</li>"
                 + "<li>Try to get closer to 21 than the dealer without going over 21.</li>"
@@ -205,11 +198,12 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
                 + "<li>Beat the dealer to win your bet amount in profit. A tie returns your bet.</li>"
                 + "<li>Click NEXT ROUND to play again.</li>"
                 + "<li>Reach 1,000 tokens to win. Run out of tokens and the game ends.</li>"
+                + "<li>Remember: if you get 22, that is NOT 21.</li>"
                 + "</ul></body></html>";
         JOptionPane.showMessageDialog(this, new JLabel(instructions), "How to Play", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    /** Pre: stack of cards exists. Post: shows a layered row with no cards cut off. */
+    /** Pre: cards are in a stack. Post: draws a row of cards. */
     public JLayeredPane drawPile(Stack<Card> stackIn) {
         JLayeredPane pile = new JLayeredPane();
         pile.setLayout(null);
@@ -223,7 +217,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         return pile;
     }
 
-    /** Pre: state may have changed. Post: updates the GUI without changing game rules. */
+    /** Pre: game state changed. Post: refreshes the screen. */
     public void update() {
         tokenCount.setText("TOKENS  " + game.tokens + " / 1000");
         currentBet.setText("CURRENT BET  " + game.bet);
@@ -271,7 +265,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         }
     }
 
-    /** Pre: player clicks a button. Post: delegates to Solitaire or shows the help dialog. */
+    /** Pre: button clicked. Post: runs the matching action. */
     @Override public void actionPerformed(ActionEvent event) {
         Object source = event.getSource();
         if (source == howToButton) { showInstructions(); return; }
@@ -288,21 +282,21 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         update();
     }
 
-    /** Pre: the deck is clicked. Post: draws one card if a round is active. */
+    /** Pre: deck clicked. Post: draws a card during a round. */
     @Override public void mouseClicked(MouseEvent event) {
         if (event.getSource() == deckImage) { game.hit(); update(); }
     }
 
-    /** Pre: mouse enters. Post: no additional behavior. */
+    /** Pre: mouse enters. Post: nothing needed here. */
     @Override public void mouseEntered(MouseEvent event) {}
-    /** Pre: mouse exits. Post: no additional behavior. */
+    /** Pre: mouse leaves. Post: nothing needed here. */
     @Override public void mouseExited(MouseEvent event) {}
-    /** Pre: mouse pressed. Post: click handler runs on release. */
+    /** Pre: mouse pressed. Post: click handled separately. */
     @Override public void mousePressed(MouseEvent event) {}
-    /** Pre: mouse released. Post: no additional behavior. */
+    /** Pre: mouse released. Post: nothing needed here. */
     @Override public void mouseReleased(MouseEvent event) {}
-    /** Pre: mouse moved. Post: no dragging needed. */
+    /** Pre: mouse moves. Post: nothing needed here. */
     @Override public void mouseMoved(MouseEvent event) {}
-    /** Pre: mouse dragged. Post: no dragging needed. */
+    /** Pre: mouse dragged. Post: nothing needed here. */
     @Override public void mouseDragged(MouseEvent event) {}
 }

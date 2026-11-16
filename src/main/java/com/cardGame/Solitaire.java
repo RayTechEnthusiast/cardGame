@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.Random;
 import java.util.Stack;
 
-/** Black Mench rules: card storage, betting, draws, scoring, and win/loss decisions. */
+/** Handles the rules, cards, and score. */
 public class Solitaire {
     public final Stack<Card> deck = new Stack<>();
     public final Stack<Card> playerDeck = new Stack<>();
@@ -25,16 +25,16 @@ public class Solitaire {
     private String dealerMenchMessage = "";
     private final Random random;
 
-    /** Pre: none. Post: creates the starting 53-card round. */
+    /** Pre: none. Post: starts a new game. */
     public Solitaire() { this(new Random()); }
 
-    /** Pre: a random generator exists. Post: starts a playable round (also useful for tests). */
+    /** Pre: random generator. Post: starts the first round. */
     Solitaire(Random random) {
         this.random = random;
         newGame();
     }
 
-    /** Pre: none. Post: deck contains a shuffled set of 52 ordinary cards plus Mench. */
+    /** Pre: none. Post: shuffles 52 cards plus Mench. */
     public void generateCards() {
         ArrayList<Card> cards = new ArrayList<>();
         for (Card.Suit suit : Card.Suit.values()) {
@@ -46,7 +46,7 @@ public class Solitaire {
         deck.addAll(cards);
     }
 
-    /** Pre: a round may have ended. Post: reshuffles the full deck and deals two cards each. */
+    /** Pre: new round needed. Post: shuffles and deals cards. */
     public void newGame() {
         bet = pValue = dValue = 0;
         betted = bust = noMoreHits = nextRoundAvailable = false;
@@ -54,7 +54,7 @@ public class Solitaire {
         playerDeck.clear();
         dealerDeck.clear();
         generateCards();
-        // Alternate player/dealer like ordinary blackjack. Normal cards count before Mench.
+        // Count normal cards before Mench on the first deal.
         Card firstPlayer = deck.pop();
         Card firstDealer = deck.pop();
         Card secondPlayer = deck.pop();
@@ -64,7 +64,7 @@ public class Solitaire {
         bust = pValue > 21;
     }
 
-    /** Pre: two dealt cards. Post: preserves their order and calculates any Mench last. */
+    /** Pre: two cards dealt. Post: totals the starting hand. */
     void setupStartingHand(Stack<Card> hand, Card first, Card second, boolean player) {
         hand.clear();
         hand.push(first);
@@ -76,7 +76,7 @@ public class Solitaire {
         else dValue = calculateHand(hand);
     }
 
-    /** Pre: a Mench is in the hand but has no effect yet. Post: assigns signed adjustment. */
+    /** Pre: Mench drawn. Post: picks its plus/minus amount. */
     void applyMenchToHand(Stack<Card> hand, Card menchCard, boolean player) {
         int before = 0;
         for (Card card : hand) {
@@ -90,14 +90,14 @@ public class Solitaire {
         else dealerMenchMessage = message;
     }
 
-    /** Pre: hand contains regular cards and possibly Mench. Post: returns its actual total. */
+    /** Pre: hand has cards. Post: adds up the values. */
     public int calculateHand(Stack<Card> hand) {
         int total = 0;
         for (Card card : hand) total += card.mench ? card.menchValue : card.value;
         return total;
     }
 
-    /** Pre: a bet is accepted and deck has cards. Post: moves one card into the chosen hand. */
+    /** Pre: deck has cards. Post: draws one for the hand. */
     private void draw(Stack<Card> hand, boolean player) {
         if (deck.isEmpty()) return;
         Card card = deck.pop();
@@ -107,7 +107,7 @@ public class Solitaire {
         else dValue = calculateHand(hand);
     }
 
-    /** Pre: player has not yet bet this round. Post: deducts an affordable positive bet. */
+    /** Pre: player can bet. Post: takes tokens for the bet. */
     public void bet(int amount) {
         if (betted || nextRoundAvailable || won || lost || amount < 1 || amount > tokens) return;
         tokens -= amount;
@@ -116,7 +116,7 @@ public class Solitaire {
         if (bust) gameOver();
     }
 
-    /** Pre: player is betting and below 21. Post: adds a card or settles a bust. */
+    /** Pre: player can hit. Post: draws and checks for bust. */
     public void hit() {
         if (!betted || noMoreHits || nextRoundAvailable || won || lost || pValue >= 21) return;
         if (deck.isEmpty()) { dealerTurn(); return; }
@@ -127,7 +127,7 @@ public class Solitaire {
         }
     }
 
-    /** Pre: a valid bet is active. Post: dealer draws through 16 and round is settled. */
+    /** Pre: round is active. Post: dealer plays and ends it. */
     public void dealerTurn() {
         if (!betted || nextRoundAvailable || won || lost) return;
         noMoreHits = true;
@@ -135,7 +135,7 @@ public class Solitaire {
         gameOver();
     }
 
-    /** Pre: a round is finished by stand or bust. Post: pays tokens once and picks winner. */
+    /** Pre: round finished. Post: figures out who won. */
     public void gameOver() {
         if (!betted || nextRoundAvailable) return;
         if (pValue > 21) {
@@ -154,7 +154,7 @@ public class Solitaire {
         else if (tokens >= 1000) { won = true; result = "YOU WON BLACK MENCH!"; }
     }
 
-    /** Pre: the GUI asks for status. Post: returns visible Mench messages, without spoiling hidden cards. */
+    /** Pre: game state exists. Post: gets the Mench message. */
     public String getMenchMessage() {
         if (nextRoundAvailable && !dealerMenchMessage.isEmpty()) {
             return playerMenchMessage.isEmpty() ? dealerMenchMessage
@@ -163,7 +163,7 @@ public class Solitaire {
         return playerMenchMessage;
     }
 
-    /** Pre: player has won or lost the game. Post: restores starting tokens and a fresh round. */
+    /** Pre: game ended. Post: resets tokens and cards. */
     public void resetGame() {
         tokens = 100;
         won = lost = false;
