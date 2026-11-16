@@ -26,7 +26,7 @@ public class BlackMenchTests {
 
     /** Pre: a new game. Post: verifies 53 unique cards and normal values. */
     static void testDeck() {
-        Solitaire game = new Solitaire(new Random(2));
+        BlackMench game = new BlackMench(new Random(2));
         check(game.deck.size() == 49, "53 minus 4 dealt should remain");
         HashSet<String> seen = new HashSet<>();
         int menchCount = 0;
@@ -40,7 +40,7 @@ public class BlackMenchTests {
     }
 
     /** Pre: game hands and deck exist. Post: combines them for inspection. */
-    static ArrayList<Card> allCards(Solitaire game) {
+    static ArrayList<Card> allCards(BlackMench game) {
         ArrayList<Card> cards = new ArrayList<>(game.deck);
         cards.addAll(game.playerDeck);
         cards.addAll(game.dealerDeck);
@@ -49,7 +49,7 @@ public class BlackMenchTests {
 
     /** Pre: ordinary cards and Mench. Post: tests both random Mench branches. */
     static void testMench() {
-        Solitaire game = new Solitaire(new Random(0));
+        BlackMench game = new BlackMench(new Random(0));
         Stack<Card> low = new Stack<>();
         low.push(new Card(5, Card.Suit.Spades));
         low.push(new Card(7, Card.Suit.Hearts));
@@ -71,7 +71,7 @@ public class BlackMenchTests {
 
     /** Pre: a first-dealt Mench. Post: verifies normal card counts first. */
     static void testInitialMench() {
-        Solitaire game = new Solitaire(new Random(3));
+        BlackMench game = new BlackMench(new Random(3));
         Stack<Card> hand = new Stack<>();
         game.setupStartingHand(hand, new Card(), new Card(10, Card.Suit.Clubs), true);
         check(game.pValue >= 18 && game.pValue <= 21, "initial Mench counts normal card first");
@@ -80,7 +80,7 @@ public class BlackMenchTests {
 
     /** Pre: a fresh round. Post: validates tokens, stand, and one-time payout. */
     static void testBetAndStand() {
-        Solitaire game = new Solitaire(new Random(5));
+        BlackMench game = new BlackMench(new Random(5));
         int initialTokens = game.tokens;
         game.bet(15);
         check(game.betted && game.tokens == initialTokens - 15, "bet deducts tokens");
@@ -95,7 +95,7 @@ public class BlackMenchTests {
 
     /** Pre: a playable hand. Post: verifies drawing and action limits. */
     static void testHitAndBustProtection() {
-        Solitaire game = new Solitaire(new Random(6));
+        BlackMench game = new BlackMench(new Random(6));
         for (int i = 0; game.pValue >= 21 && i < 30; i++) game.newGame();
         check(game.pValue < 21, "test starts on a hittable hand");
         game.bet(5);
@@ -111,7 +111,7 @@ public class BlackMenchTests {
 
     /** Pre: near-target tokens. Post: verifies victory and restart. */
     static void testWinAndReset() {
-        Solitaire game = new Solitaire(new Random(7));
+        BlackMench game = new BlackMench(new Random(7));
         game.tokens = 999;
         game.bet(1);
         game.pValue = 21;
@@ -124,7 +124,7 @@ public class BlackMenchTests {
 
     /** Pre: a finished round. Post: validates the next deck and hands. */
     static void testRoundRefresh() {
-        Solitaire game = new Solitaire(new Random(8));
+        BlackMench game = new BlackMench(new Random(8));
         game.bet(5);
         if (!game.nextRoundAvailable) game.dealerTurn();
         if (!game.lost && !game.won) {

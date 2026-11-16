@@ -6,9 +6,9 @@ import java.awt.event.*;
 import java.util.Stack;
 import java.awt.image.BufferedImage;
 
-/** Makes the window. The actual rules are in Solitaire.java. */
+/** Makes the window. The actual rules are in BlackMench.java. */
 public class GUI extends JFrame implements ActionListener, MouseListener, MouseMotionListener {
-    private final Solitaire game;
+    private final BlackMench game;
     JPanel dealerPane;
     JPanel playerPane;
     private JLabel deckImage;
@@ -27,7 +27,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
     public static String IMG_PATH = System.getProperty("user.dir") + "/src/main/java/com/cardGame/resources/";
 
     /** Pre: game exists. Post: shows the game window. */
-    public GUI(Solitaire game) {
+    public GUI(BlackMench game) {
         this.game = game;
         setTitle("Black Mench");
         setSize(1024, 735);

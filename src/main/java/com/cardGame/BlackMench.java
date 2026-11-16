@@ -6,7 +6,7 @@ import java.util.Random;
 import java.util.Stack;
 
 /** Handles the rules, cards, and score. */
-public class Solitaire {
+public class BlackMench {
     public final Stack<Card> deck = new Stack<>();
     public final Stack<Card> playerDeck = new Stack<>();
     public final Stack<Card> dealerDeck = new Stack<>();
@@ -26,10 +26,10 @@ public class Solitaire {
     private final Random random;
 
     /** Pre: none. Post: starts a new game. */
-    public Solitaire() { this(new Random()); }
+    public BlackMench() { this(new Random()); }
 
     /** Pre: random generator. Post: starts the first round. */
-    Solitaire(Random random) {
+    BlackMench(Random random) {
         this.random = random;
         newGame();
     }
