@@ -1,9 +1,13 @@
 package com.cardGame;
 
-public class Main {
+import javax.swing.SwingUtilities;
 
-	public static void main(String[] args) {
-		Solitaire game = new Solitaire();
-		GUI gui = new GUI(game);
-	}
+public class Main {
+    /** Pre: Java starts. Post: opens the Black Mench Swing window on the GUI thread. */
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            Solitaire game = new Solitaire();
+            new GUI(game);
+        });
+    }
 }
