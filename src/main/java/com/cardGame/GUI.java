@@ -11,7 +11,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
     private final BlackMench game;
     JPanel dealerPane;
     JPanel playerPane;
-    private JLabel deckImage;
+    private Card deckImage;
     private JLabel playerScore;
     private JLabel dealerScore;
     private JLabel tokenCount;
@@ -35,34 +35,17 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         setResizable(false);
         setLocationRelativeTo(null);
 
-        // A basic blue background with some little doodles.
-        JPanel background = new JPanel(null);
-        background.setBackground(NAVY);
-        setContentPane(background);
+        // Same panel setup as the starter: board, two hands, and controls.
+        JPanel boardArea = new JPanel(null);
+        boardArea.setBackground(NAVY);
+        setContentPane(boardArea);
 
-        JPanel boardArea = new JPanel(null) {
-            @Override protected void paintComponent(Graphics graphics) {
-                super.paintComponent(graphics);
-                Graphics2D g = (Graphics2D) graphics.create();
-                g.setColor(NAVY);
-                g.fillRect(0, 0, getWidth(), getHeight());
-                // The side area is just a plain box, like a school project poster.
-                g.setColor(new Color(22, 44, 64));
-                g.fillRect(726, 112, 266, 465);
-                g.setColor(GOLD);
-                g.drawRect(726, 112, 266, 465);
-                g.setFont(new Font("SansSerif", Font.BOLD, 22));
-                g.drawString("*", 68, 69);
-                g.drawString("*", 938, 100);
-                g.drawString("*", 59, 657);
-                g.setFont(new Font("SansSerif", Font.PLAIN, 12));
-                g.drawString("DON'T BUST!", 45, 94);
-                g.dispose();
-            }
-        };
-        boardArea.setOpaque(false);
-        boardArea.setBounds(0, 0, 1024, 735);
-        background.add(boardArea);
+        JPanel controlPane = new JPanel(null);
+        controlPane.setBackground(new Color(22, 44, 64));
+        controlPane.setBorder(BorderFactory.createLineBorder(GOLD));
+        place(boardArea, controlPane, 726, 112, 266, 465);
+
+        place(boardArea, label("DON'T BUST!", 12), 45, 78, 140, 18);
 
         JLabel title = label("BLACK MENCH!", 36);
         title.setFont(new Font("SansSerif", Font.BOLD, 36));
@@ -105,19 +88,20 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         tokenCount = label("", 21);
         tokenCount.setForeground(GOLD);
         currentBet = label("", 16);
-        place(boardArea, tokenCount, 746, 122, 240, 33);
-        place(boardArea, currentBet, 746, 157, 240, 27);
+        place(controlPane, tokenCount, 18, 10, 240, 33);
+        place(controlPane, currentBet, 18, 45, 240, 27);
 
-        // The back is drawn in Card.java so the deck and hidden cards match.
-        deckImage = new JLabel(new ImageIcon(Card.createBackImage()));
+        // The deck is just a face-down card, like the rest of the game.
+        deckImage = new Card(1, Card.Suit.Spades);
+        deckImage.hide();
         deckImage.setBorder(BorderFactory.createLineBorder(CYAN, 1));
         deckImage.addMouseListener(this);
         deckImage.setToolTipText("Click the deck to hit after placing a bet");
-        place(boardArea, deckImage, 808, 189, 100, 145);
+        place(controlPane, deckImage, 82, 77, 100, 145);
         JLabel deckHint = label("CLICK DECK = HIT", 11);
         deckHint.setForeground(CYAN);
         deckHint.setHorizontalAlignment(SwingConstants.CENTER);
-        place(boardArea, deckHint, 774, 340, 168, 17);
+        place(controlPane, deckHint, 48, 228, 168, 17);
 
         bet5 = button("BET 5");
         bet15 = button("BET 15");
@@ -126,13 +110,13 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
         hitButton = button("HIT");
         standButton = button("STAND");
         nextButton = button("NEXT ROUND");
-        place(boardArea, bet5, 744, 374, 108, 36);
-        place(boardArea, bet15, 861, 374, 108, 36);
-        place(boardArea, bet30, 744, 417, 108, 36);
-        place(boardArea, betAll, 861, 417, 108, 36);
-        place(boardArea, hitButton, 744, 466, 108, 39);
-        place(boardArea, standButton, 861, 466, 108, 39);
-        place(boardArea, nextButton, 744, 517, 225, 39);
+        place(controlPane, bet5, 18, 262, 108, 36);
+        place(controlPane, bet15, 135, 262, 108, 36);
+        place(controlPane, bet30, 18, 305, 108, 36);
+        place(controlPane, betAll, 135, 305, 108, 36);
+        place(controlPane, hitButton, 18, 354, 108, 39);
+        place(controlPane, standButton, 135, 354, 108, 39);
+        place(controlPane, nextButton, 18, 405, 225, 39);
         nextButton.setBackground(GOLD);
 
         for (JButton button : new JButton[] {bet5, bet15, bet30, betAll,
@@ -184,21 +168,17 @@ public class GUI extends JFrame implements ActionListener, MouseListener, MouseM
 
     /** Pre: rules button clicked. Post: shows how to play. */
     private void showInstructions() {
-        String instructions = "<html><body style='width:440px;font-family:sans-serif'>"
-                + "<h2>How to Play Black Mench</h2>"
+        String instructions = "<html><body style='width:365px;font-family:sans-serif'>"
+                + "<h3>How to Play</h3>"
                 + "<ul>"
-                + "<li>Place a bet of 5, 15, 30, or all your available tokens.</li>"
-                + "<li>Try to get closer to 21 than the dealer without going over 21.</li>"
-                + "<li>Click the deck or HIT to draw a card. Choose STAND to finish your turn.</li>"
-                + "<li>The dealer draws until their total is at least 17.</li>"
-                + "<li>Ace = 1, Jack = 11, Queen = 12, and King = 13.</li>"
-                + "<li>There is one special card: THE MENCH. Either player can draw it.</li>"
-                + "<li>If your hand was below 18, Mench raises your total to a random 18-21.</li>"
-                + "<li>Otherwise Mench subtracts a random 1-18 from your hand.</li>"
-                + "<li>Beat the dealer to win your bet amount in profit. A tie returns your bet.</li>"
-                + "<li>Click NEXT ROUND to play again.</li>"
-                + "<li>Reach 1,000 tokens to win. Run out of tokens and the game ends.</li>"
-                + "<li>Remember: if you get 22, that is NOT 21.</li>"
+                + "<li>Bet 5, 15, 30, or all your tokens</li>"
+                + "<li>Get closer to 21 than the dealer without going over</li>"
+                + "<li>Click the deck or HIT to draw a card</li>"
+                + "<li>Press STAND to let the dealer play to at least 17</li>"
+                + "<li>A=1, J=11, Q=12, K=13</li>"
+                + "<li>Mench below 18 boosts your total to 18-21</li>"
+                + "<li>Mench at 18 or more subtracts 1-18</li>"
+                + "<li>Win rounds for tokens, reach 1000 to win</li>"
                 + "</ul></body></html>";
         JOptionPane.showMessageDialog(this, new JLabel(instructions), "How to Play", JOptionPane.INFORMATION_MESSAGE);
     }

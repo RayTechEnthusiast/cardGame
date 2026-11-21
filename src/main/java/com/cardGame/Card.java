@@ -47,15 +47,6 @@ public class Card extends JPanel {
         setOpaque(false);
     }
 
-    /** Pre: none. Post: makes the little M! card back for the deck. */
-    public static BufferedImage createBackImage() {
-        BufferedImage picture = new BufferedImage(100, 145, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D pen = picture.createGraphics();
-        drawBack(pen, 100, 145);
-        pen.dispose();
-        return picture;
-    }
-
     /** Pre: graphics and card size. Post: draws a simple purple card back. */
     private static void drawBack(Graphics2D g, int width, int height) {
         g.setColor(new Color(126, 77, 153));
